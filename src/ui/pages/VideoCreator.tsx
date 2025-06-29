@@ -101,7 +101,7 @@ const VideoCreator: React.FC = () => {
     setScenes(newScenes);
   };
 
-  const handleConfigChange = (field: keyof RenderConfig, value: any) => {
+  const handleConfigChange = (field: keyof RenderConfig, value: string | number) => {
     setConfig({ ...config, [field]: value });
   };
 

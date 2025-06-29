@@ -1,4 +1,4 @@
-import { OrientationEnum } from "./../types/shorts";
+import { OrientationEnum, VideoAPIEnum } from "./../types/shorts";
 /* eslint-disable @remotion/deterministic-randomness */
 import fs from "fs-extra";
 import cuid from "cuid";
@@ -11,6 +11,7 @@ import { Remotion } from "./libraries/Remotion";
 import { Whisper } from "./libraries/Whisper";
 import { FFMpeg } from "./libraries/FFmpeg";
 import { PexelsAPI } from "./libraries/Pexels";
+import { EnvatoAPI } from "./libraries/Envato";
 import { Config } from "../config";
 import { logger } from "../logger";
 import { MusicManager } from "./music";
@@ -37,6 +38,7 @@ export class ShortCreator {
     private whisper: Whisper,
     private ffmpeg: FFMpeg,
     private pexelsApi: PexelsAPI,
+    private envatoApi: EnvatoAPI,
     private musicManager: MusicManager,
   ) {}
 
@@ -137,7 +139,7 @@ export class ShortCreator {
       const captions = await this.whisper.CreateCaption(tempWavPath);
 
       await this.ffmpeg.saveToMp3(audioStream, tempMp3Path);
-      const video = await this.pexelsApi.findVideo(
+      const video = await this.findVideo(
         scene.searchTerms,
         audioLength,
         excludeVideoIds,
@@ -216,6 +218,29 @@ export class ShortCreator {
     }
 
     return videoId;
+  }
+
+  private async findVideo(
+    searchTerms: string[],
+    minDurationSeconds: number,
+    excludeVideoIds: string[],
+    orientation: OrientationEnum,
+  ) {
+    if (this.config.videoApi === VideoAPIEnum.envato) {
+      return this.envatoApi.findVideo(
+        searchTerms,
+        minDurationSeconds,
+        excludeVideoIds,
+        orientation,
+      );
+    }
+
+    return this.pexelsApi.findVideo(
+      searchTerms,
+      minDurationSeconds,
+      excludeVideoIds,
+      orientation,
+    );
   }
 
   public getVideoPath(videoId: string): string {

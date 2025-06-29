@@ -3,7 +3,7 @@ import "dotenv/config";
 import os from "os";
 import fs from "fs-extra";
 import pino from "pino";
-import { kokoroModelPrecision, whisperModels } from "./types/shorts";
+import { kokoroModelPrecision, whisperModels, VideoAPIEnum } from "./types/shorts";
 
 const defaultLogLevel: pino.Level = "info";
 const defaultPort = 3123;
@@ -38,6 +38,8 @@ export class Config {
   public packageDirPath: string;
   public musicDirPath: string;
   public pexelsApiKey: string;
+  public envatoApiKey: string;
+  public videoApi: VideoAPIEnum;
   public logLevel: pino.Level;
   public whisperVerbose: boolean;
   public port: number;
@@ -75,6 +77,8 @@ export class Config {
     this.musicDirPath = path.join(this.staticDirPath, "music");
 
     this.pexelsApiKey = process.env.PEXELS_API_KEY as string;
+    this.envatoApiKey = process.env.ENVATO_API_KEY as string;
+    this.videoApi = (process.env.VIDEO_API as VideoAPIEnum) || VideoAPIEnum.pexels;
     this.logLevel = (process.env.LOG_LEVEL || defaultLogLevel) as pino.Level;
     this.whisperVerbose = process.env.WHISPER_VERBOSE === "true";
     this.port = process.env.PORT ? parseInt(process.env.PORT) : defaultPort;
@@ -101,9 +105,14 @@ export class Config {
   }
 
   public ensureConfig() {
-    if (!this.pexelsApiKey) {
+    if (this.videoApi === VideoAPIEnum.pexels && !this.pexelsApiKey) {
       throw new Error(
         "PEXELS_API_KEY environment variable is missing. Get your free API key: https://www.pexels.com/api/key/ - see how to run the project: https://github.com/gyoridavid/short-video-maker",
+      );
+    }
+    if (this.videoApi === VideoAPIEnum.envato && !this.envatoApiKey) {
+      throw new Error(
+        "ENVATO_API_KEY environment variable is missing. Get your free API key: https://build.envato.com/ - see how to run the project: https://github.com/gyoridavid/short-video-maker",
       );
     }
   }

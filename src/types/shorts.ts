@@ -72,8 +72,13 @@ export enum VoiceEnum {
 }
 
 export enum OrientationEnum {
-  landscape = "landscape",
   portrait = "portrait",
+  landscape = "landscape",
+}
+
+export enum VideoAPIEnum {
+  pexels = "pexels",
+  envato = "envato",
 }
 
 export enum MusicVolumeEnum {
